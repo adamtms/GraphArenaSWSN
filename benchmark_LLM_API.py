@@ -22,7 +22,8 @@ llm_to_api = {
     "mixtral": "mistralai/Mixtral-8x7B-Instruct-v0.1",
     "deepseek": "deepseek-chat",
     "doubao": "ep-20250215195227-lg4pc",
-    "dsR1": "ep-20250215203640-lxb6j"
+    "dsR1": "ep-20250215203640-lxb6j",
+    "gemini": "gemini-2.5-flash-lite"
 }
 
 if __name__ == '__main__':
@@ -68,6 +69,11 @@ if __name__ == '__main__':
                 api_key = os.environ.get("ARK_API_KEY"),
                 base_url = "https://ark.cn-beijing.volces.com/api/v3",
             )
+        elif "gemini" in llm:
+            client = OpenAI(
+                base_url = "https://generativelanguage.googleapis.com/v1beta/openai/",
+                api_key = os.environ.get("GOOGLE_API_KEY", "")
+            )
         else:
             client = OpenAI(
                 base_url = "https://api.aimlapi.com/",
@@ -98,7 +104,6 @@ if __name__ == '__main__':
                             {"role": "user", "content": system_prompt + task.insert_example(int(i), args.example_num)},
                         ],
                         model=llm_to_api[llm],
-                        seed=42,
                         temperature=0.6,
                         top_p=0.95
                     )
@@ -109,7 +114,6 @@ if __name__ == '__main__':
                             {"role": "user", "content": task.insert_example(int(i), args.example_num)},
                         ],
                         model=llm_to_api[llm],
-                        seed=42,
                         temperature=0.1
                     )
                 all_data[i] = chat_completion
