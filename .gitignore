@@ -2,3 +2,5 @@ bak
 tasks/__pycache__
 dataset/
 final_results/
+pyproject.toml
+uv.lock
