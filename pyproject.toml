@@ -7,6 +7,8 @@ requires-python = ">=3.12"
 dependencies = [
     "fast-tsp>=0.1.4",
     "graph-walker>=1.0.6",
+    "ipykernel>=7.1.0",
+    "ipywidgets>=8.1.8",
     "matplotlib>=3.10.7",
     "munkres>=1.1.4",
     "networkx>=3.5",
@@ -17,5 +19,9 @@ dependencies = [
     "pip>=25.3",
     "pybind11>=3.0.1",
     "rdkit>=2025.9.1",
+    "torch-geometric>=2.7.0",
     "transformers>=4.57.1",
 ]
+
+[tool.uv.extra-build-dependencies]
+graph-walker = ["pybind11"]
