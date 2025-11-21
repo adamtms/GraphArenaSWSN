@@ -8,11 +8,17 @@ from torch_geometric.utils import from_networkx
 
 import tasks
 
+<<<<<<< HEAD
 
 class Difficulty(StrEnum):
     EASY = "easy"
     HARD = "hard"
 
+=======
+class Difficulty(StrEnum):
+    EASY = 'easy'
+    HARD = 'hard'
+>>>>>>> c124ece (Small refactor of inputs to the original data loader.)
 
 class Tasks(Enum):
     CONNECTED = tasks.Connected_Task
