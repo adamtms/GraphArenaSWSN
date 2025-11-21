@@ -8,3 +8,4 @@ from .Connected import Connected_Task
 from .Diameter import Diameter_Task
 from .Neighbor import Neighbor_Task
 from .Distance import Distance_Task
+from .base import NPTask
