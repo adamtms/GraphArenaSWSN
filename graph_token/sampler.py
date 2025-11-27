@@ -14,7 +14,10 @@ from torch_geometric.data import Data
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
+<<<<<<< HEAD
     BitsAndBytesConfig,
+=======
+>>>>>>> fe4049b (Add wip version)
     PreTrainedModel,
     PreTrainedTokenizer,
 )
@@ -352,7 +355,10 @@ def load_graphtoken_model(
     freeze_llm: bool = True,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
     hf_token: Optional[str] = None,
+<<<<<<< HEAD
     precision: str = "32bit",
+=======
+>>>>>>> fe4049b (Add wip version)
 ) -> tuple:
     """
     Load a GraphToken model with specified LLM from HuggingFace.
@@ -367,8 +373,11 @@ def load_graphtoken_model(
         device: Device to load model on.
         hf_token: HuggingFace API token for accessing gated models (e.g., Gemma).
                   Can also be set via HF_TOKEN environment variable.
+<<<<<<< HEAD
         precision: Quantization precision ('4bit', '8bit', '16bit', '32bit').
                    4bit and 8bit require bitsandbytes library and CUDA.
+=======
+>>>>>>> fe4049b (Add wip version)
         
     Returns:
         Tuple of (model, tokenizer, sampler).
@@ -378,6 +387,7 @@ def load_graphtoken_model(
     # Get token from argument, environment, or None
     token = hf_token or os.environ.get("HF_TOKEN")
     
+<<<<<<< HEAD
     # Validate precision parameter
     valid_precisions = ["4bit", "8bit", "16bit", "32bit"]
     if precision not in valid_precisions:
@@ -425,6 +435,16 @@ def load_graphtoken_model(
             model_kwargs["device_map"] = "auto"
     
     llm = AutoModelForCausalLM.from_pretrained(llm_name, **model_kwargs)
+=======
+    # Load from HuggingFace
+    tokenizer = AutoTokenizer.from_pretrained(llm_name, token=token)
+    llm = AutoModelForCausalLM.from_pretrained(
+        llm_name,
+        torch_dtype=torch.bfloat16 if device == "cuda" else torch.float32,
+        device_map="auto" if device == "cuda" else None,
+        token=token,
+    )
+>>>>>>> fe4049b (Add wip version)
     
     # Set pad token if not set
     if tokenizer.pad_token is None:

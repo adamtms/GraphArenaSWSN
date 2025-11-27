@@ -65,6 +65,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "accelerate>=1.12.0",
     "fast-tsp>=0.1.4",
     "graph-walker>=1.0.6",
     "ipykernel>=7.1.0",
