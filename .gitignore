@@ -2,3 +2,4 @@ bak
 tasks/__pycache__
 dataset/
 final_results/
+*.pyc

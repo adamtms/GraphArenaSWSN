@@ -27,9 +27,9 @@ class Tasks(Enum):
     TSP = tasks.TSP_Task
 
     @property
-    def value(self) -> Type[tasks.NPTask]:
-        # for better type hinting
-        return self._value_().task_name
+    def task_class(self) -> Type[tasks.NPTask]:
+        """Get the task class for this enum value."""
+        return self._value_
 
 
 class GPDataset(Dataset):
@@ -42,11 +42,11 @@ class GPDataset(Dataset):
         pre_transform=None,
         dataset_loc="dataset",
     ):
-        self.task_name = task.value.task_name
         self.difficulty = difficulty
         super().__init__(root, transform, pre_transform)
 
-        task_inilialized = task.value(data_loc=dataset_loc)
+        task_inilialized = task.task_class(data_loc=dataset_loc)
+        self.task_name = task_inilialized.task_name
         task_inilialized.load_dataset(difficulty)
         graph_problems = task_inilialized.problem_set
 
@@ -67,6 +67,13 @@ class GPDataset(Dataset):
 
             # Add label
             data.y = torch.tensor([gp["exact_answer"]], dtype=torch.long)
+            
+            # Store original NetworkX graph for GraphToken mode
+            data.nx_graph = gp["graph"]
+            
+            # Store question text if available
+            if "question" in gp:
+                data.question = gp["question"]
 
             # Handle source/target nodes
             if "node1" in gp:
