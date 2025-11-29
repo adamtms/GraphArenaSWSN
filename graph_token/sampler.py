@@ -378,7 +378,7 @@ def load_graphtoken_model(
     tokenizer = AutoTokenizer.from_pretrained(llm_name, token=token)
     llm = AutoModelForCausalLM.from_pretrained(
         llm_name,
-        torch_dtype=torch.bfloat16 if device == "cuda" else torch.float32,
+        dtype=torch.bfloat16 if device == "cuda" else torch.float32,
         device_map="auto" if device == "cuda" else None,
         token=token,
     )

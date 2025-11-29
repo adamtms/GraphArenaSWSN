@@ -429,6 +429,25 @@ def train_graphtoken_mode(args):
         question = f"Q: What is the answer for this graph problem?\nA:"
         answer = str(data.y.item())
         
+        # Create a personalized question based on the graph task
+        if args.task == "CONNECTED":
+            question = "Q: Is the graph connected?\n"
+            question += " You should return only True/False.\n"
+        elif args.task == "DIAMETER":
+            question = "Q: What is the diameter of the graph?\n"
+            question += " You should return only a number.\n"
+        elif args.task == "MIS":
+            question = "Q: What is the maximum independent set of the graph?\n"
+            question += " You should return only the size of the maximum independent set as a number.\n"
+        elif args.task == "MVC":
+            question = "Q: What is the minimum vertex cover of the graph?\n"
+            question += " You should return only the size of the minimum vertex cover as a number.\n"
+        elif args.task == "TSP":
+            question = "Q: What is the shortest path for the traveling salesman problem?\n"
+            question += " You should return only the length of the shortest path as a number.\n"
+        else:
+            question = f"Q: Solve the {args.task} problem for the graph.\n"
+
         # Use nx_graph stored in the data object
         if hasattr(data, 'nx_graph'):
             examples.append({
