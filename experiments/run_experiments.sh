@@ -5,7 +5,7 @@
 
 # --- Configuration ---
 # Add more values to these arrays to expand the experiments
-TASKS=("CONNECTED" "TSP" "MVC")
+TASKS=("CONNECTED" "MVC" "MIS")
 DIFFICULTIES=("easy" "hard")
 MODELS=("GIN" "GAT" "GCN")
 HIDDEN_DIMS=(64)
@@ -18,7 +18,7 @@ EPOCHS=(20)
 # HF_TOKEN="your-token-here"
 
 # You might need to change this depending on your setup
-LLM="google/gemma-3-1b-it"
+LLM="google/gemma-3-4b-it"
 
 # --- Experiment Loop ---
 for task in "${TASKS[@]}"; do
@@ -42,7 +42,7 @@ for task in "${TASKS[@]}"; do
                             echo "================================================================="
                             
                             # Construct command
-                            CMD="python train_gnn.py \
+                            CMD="uv run python train_gnn.py \
                                 --mode graphtoken \
                                 --task \"$task\" \
                                 --difficulty \"$difficulty\" \
