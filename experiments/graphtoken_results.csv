@@ -1,0 +1,5 @@
+timestamp,task,difficulty,model,llm,hidden_dim,num_layers,lpe_dim,epochs,learning_rate,accuracy,correct,total
+2025-11-30 12:01:48.874243,CONNECTED,easy,GIN,google/gemma-3-1b-it,64,3,4,1,0.001,0.3,30,100
+2025-11-30 12:03:33.963442,CONNECTED,easy,GAT,google/gemma-3-1b-it,64,3,4,1,0.001,0.33,33,100
+2025-11-30 12:05:18.423012,CONNECTED,easy,GCN,google/gemma-3-1b-it,64,3,4,1,0.001,0.28,28,100
+2025-11-30 12:06:53.315085,CONNECTED,hard,GIN,google/gemma-3-1b-it,64,3,4,1,0.001,0.06,6,100

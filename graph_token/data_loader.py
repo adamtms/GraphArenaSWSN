@@ -71,9 +71,30 @@ class GPDataset(Dataset):
             # Store original NetworkX graph for GraphToken mode
             data.nx_graph = gp["graph"]
             
-            # Store question text if available
-            if "question" in gp:
-                data.question = gp["question"]
+            data.question = "Provide your answer as a single integer value.\n"
+            if self.task_name == Tasks.CONNECTED.name:
+                data.question += "Identify the connected components in the given graph.\n"
+            elif self.task_name == Tasks.DIAMETER.name:
+                data.question += "What is the diameter of the given graph?\n"
+            elif self.task_name == Tasks.DISTANCE.name:
+                data.question = "What is the distance between the specified nodes in the given graph?\n"
+            elif self.task_name == Tasks.GED.name:
+                data.question += "What is the graph edit distance between the two graphs provided?\n"
+            elif self.task_name == Tasks.MCP.name:
+                data.question += "What is the size of the maximum clique in the given graph?\n"
+            elif self.task_name == Tasks.MCS.name:
+                data.question += "What is the size of the maximum common subgraph between the two graphs provided?\n"
+            elif self.task_name == Tasks.MIS.name:
+                data.question += "What is the size of the maximum independent set in the given graph?\n"
+            elif self.task_name == Tasks.MVC.name:
+                data.question += "What is the size of the minimum vertex cover in the given graph?\n"
+            elif self.task_name == Tasks.NEIGHBOR.name:
+                data.question += "How many neighbors does the specified node have in the given graph?\n"
+            elif self.task_name == Tasks.TSP.name:
+                data.question += "What is the length of the shortest possible route that visits each node exactly once and returns to the origin node in the given graph?\n"
+            else:
+                data.question += f"What is the solution for the {self.task_name} problem on the given graph?\n"
+            data.question += "Answer:"
 
             # Handle source/target nodes
             if "node1" in gp:

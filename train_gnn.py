@@ -17,6 +17,8 @@ Usage:
 import argparse
 import sys
 import torch
+import re
+import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from pathlib import Path
@@ -419,14 +421,11 @@ def train_graphtoken_mode(args):
     print(f"Dataset size: {len(dataset)}")
     
     # Convert to GraphToken format
-    # Note: This requires the dataset to have question/answer format
-    # For now, we create simple examples from the graph data
     print("\nPreparing training examples...")
     
     examples = []
     for i, data in enumerate(dataset):
-        # Create a simple question based on the task
-        question = f"Q: What is the answer for this graph problem?\nA:"
+        question = data.question
         answer = str(data.y.item())
         
         # Use nx_graph stored in the data object
@@ -491,22 +490,91 @@ def train_graphtoken_mode(args):
     
     print(f"\nTraining completed: {train_results['steps_trained']} steps")
     
-    # Test generation
+    # Evaluate on test set
     print(f"\n{'='*60}")
-    print("Testing generation...")
+    print("Evaluating on test set...")
     print(f"{'='*60}")
+
+    correct = 0
+    total = len(test_examples)
     
-    for i in range(min(3, len(test_examples))):
+    # Print a few examples first
+    print("Example Generations:")
+    for i in range(min(3, total)):
         ex = test_examples[i]
         output = sampler.generate(
             prompts=[ex['question']],
             graphs=[ex['graph']],
             max_new_tokens=20,
         )
+        generated_text = output.text[0]
+        
+        # Parse with regex
+        match = re.search(r'\d+', generated_text)
+        predicted_answer = match.group(0) if match else ""
+        
         print(f"\nQuestion: {ex['question']}")
-        print(f"Generated: {output.text[0]}")
+        print(f"Generated: {generated_text}")
+        print(f"Predicted: {predicted_answer}")
         print(f"Ground Truth: {ex['answer']}")
+        if predicted_answer == ex['answer']:
+            print("Result: Correct")
+        else:
+            print("Result: Incorrect")
+
+    # Full evaluation
+    print("\nRunning full evaluation...")
+    for ex in test_examples:
+        output = sampler.generate(
+            prompts=[ex['question']],
+            graphs=[ex['graph']],
+            max_new_tokens=20,
+        )
+        generated_text = output.text[0]
+        match = re.search(r'\d+', generated_text)
+        predicted_answer = match.group(0) if match else ""
+        
+        if predicted_answer == ex['answer']:
+            correct += 1
+            
+    accuracy = correct / total if total > 0 else 0
     
+    print(f"\nTest Set Evaluation Summary:")
+    print(f"  Total examples: {total}")
+    print(f"  Correct predictions: {correct}")
+    print(f"  Accuracy: {accuracy:.4f}")
+    
+    # Save results to CSV
+    results_path = Path("experiments") / "graphtoken_results.csv"
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    results_data = {
+        'timestamp': [pd.Timestamp.now()],
+        'task': [args.task],
+        'difficulty': [args.difficulty],
+        'model': [args.model],
+        'llm': [args.llm],
+        'hidden_dim': [args.hidden_dim],
+        'num_layers': [args.num_layers],
+        'lpe_dim': [args.lpe_dim],
+        'epochs': [args.epochs],
+        'learning_rate': [args.lr],
+        'accuracy': [accuracy],
+        'correct': [correct],
+        'total': [total],
+    }
+    
+    new_results_df = pd.DataFrame(results_data)
+    
+    if results_path.exists():
+        print(f"\nAppending results to {results_path}")
+        existing_results_df = pd.read_csv(results_path)
+        combined_df = pd.concat([existing_results_df, new_results_df], ignore_index=True)
+        combined_df.to_csv(results_path, index=False)
+    else:
+        print(f"\nSaving new results to {results_path}")
+        new_results_df.to_csv(results_path, index=False)
+
     # Save model
     if args.save_model:
         model_path = output_dir / f"graphtoken_{args.model}_{args.task}.pt"
