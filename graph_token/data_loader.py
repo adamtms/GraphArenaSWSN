@@ -71,10 +71,6 @@ class GPDataset(Dataset):
             # Store original NetworkX graph for GraphToken mode
             data.nx_graph = gp["graph"]
             
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 634dadd (Add experiment scripts and results logging for GraphToken tasks)
             data.question = "Provide your answer as a single integer value.\n"
             if self.task_name == Tasks.CONNECTED.name:
                 data.question += "Identify the connected components in the given graph.\n"
@@ -99,14 +95,6 @@ class GPDataset(Dataset):
             else:
                 data.question += f"What is the solution for the {self.task_name} problem on the given graph?\n"
             data.question += "Answer:"
-<<<<<<< HEAD
-=======
-            # Store question text if available
-            if "question" in gp:
-                data.question = gp["question"]
->>>>>>> fe4049b (Add wip version)
-=======
->>>>>>> 634dadd (Add experiment scripts and results logging for GraphToken tasks)
 
             # Handle source/target nodes
             if "node1" in gp:

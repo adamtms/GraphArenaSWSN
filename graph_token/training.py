@@ -340,13 +340,8 @@ def prepare_graphtoken_dataset(
         
         # Build input sequence
         input_tokens = np.array(
-<<<<<<< HEAD
             [tokenizer.bos_token_id] + query_tokens + answer_tokens,
-            # query_tokens + answer_tokens,
             dtype=np.int64
-=======
-            [tokenizer.bos_token_id] + query_tokens + answer_tokens
->>>>>>> fe4049b (Add wip version)
         )
         
         # Build target mask (1 for answer tokens)
