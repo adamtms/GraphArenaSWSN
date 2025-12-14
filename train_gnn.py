@@ -136,6 +136,13 @@ def parse_args():
         default=True,
         help="Freeze LLM parameters during training",
     )
+    parser.add_argument(
+        "--precision",
+        type=str,
+        default="32bit",
+        choices=["4bit", "8bit", "16bit", "32bit"],
+        help="LLM quantization precision (4bit and 8bit require CUDA and bitsandbytes)",
+    )
     
     # Training arguments
     parser.add_argument(
@@ -394,6 +401,7 @@ def train_graphtoken_mode(args):
             freeze_llm=args.freeze_llm,
             device=device,
             hf_token=args.hf_token,
+            precision=args.precision,
         )
     except Exception as e:
         print(f"Error loading LLM: {e}")

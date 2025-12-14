@@ -14,6 +14,7 @@ from torch_geometric.data import Data
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
+    BitsAndBytesConfig,
     PreTrainedModel,
     PreTrainedTokenizer,
 )
@@ -351,6 +352,7 @@ def load_graphtoken_model(
     freeze_llm: bool = True,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
     hf_token: Optional[str] = None,
+    precision: str = "32bit",
 ) -> tuple:
     """
     Load a GraphToken model with specified LLM from HuggingFace.
@@ -365,6 +367,8 @@ def load_graphtoken_model(
         device: Device to load model on.
         hf_token: HuggingFace API token for accessing gated models (e.g., Gemma).
                   Can also be set via HF_TOKEN environment variable.
+        precision: Quantization precision ('4bit', '8bit', '16bit', '32bit').
+                   4bit and 8bit require bitsandbytes library and CUDA.
         
     Returns:
         Tuple of (model, tokenizer, sampler).
@@ -374,14 +378,53 @@ def load_graphtoken_model(
     # Get token from argument, environment, or None
     token = hf_token or os.environ.get("HF_TOKEN")
     
+    # Validate precision parameter
+    valid_precisions = ["4bit", "8bit", "16bit", "32bit"]
+    if precision not in valid_precisions:
+        raise ValueError(f"precision must be one of {valid_precisions}, got '{precision}'")
+    
+    # Configure quantization based on precision
+    quantization_config = None
+    dtype = None
+    
+    if precision == "4bit":
+        if device == "cpu":
+            raise ValueError("4-bit quantization requires CUDA device")
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        )
+    elif precision == "8bit":
+        if device == "cpu":
+            raise ValueError("8-bit quantization requires CUDA device")
+        quantization_config = BitsAndBytesConfig(
+            load_in_8bit=True,
+        )
+    elif precision == "16bit":
+        dtype = torch.bfloat16 if device == "cuda" else torch.float16
+    else:  # 32bit
+        dtype = torch.float32
+    
     # Load from HuggingFace
     tokenizer = AutoTokenizer.from_pretrained(llm_name, token=token)
-    llm = AutoModelForCausalLM.from_pretrained(
-        llm_name,
-        dtype=torch.bfloat16 if device == "cuda" else torch.float32,
-        device_map="auto" if device == "cuda" else None,
-        token=token,
-    )
+    
+    # Prepare model loading arguments
+    model_kwargs = {
+        "token": token,
+    }
+    
+    if quantization_config is not None:
+        model_kwargs["quantization_config"] = quantization_config
+        model_kwargs["device_map"] = "auto"
+    else:
+        if dtype is not None:
+            model_kwargs["torch_dtype"] = dtype
+        if device == "cuda":
+            model_kwargs["device_map"] = "auto"
+    
+    llm = AutoModelForCausalLM.from_pretrained(llm_name, **model_kwargs)
     
     # Set pad token if not set
     if tokenizer.pad_token is None:
